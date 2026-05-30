@@ -1,0 +1,633 @@
+{
+ "root": "8863fc529a10ec19683f1df6273cec0f97fa9f3c40d59ea7b40600a733f08990",
+ "generated": "2026-05-30T17:15:04.521033+00:00",
+ "tree": {
+  "id": "0",
+  "type": "CATEGORY",
+  "label": "Technology",
+  "claim": null,
+  "status": "AXIOM",
+  "evidence": [],
+  "falsifier": null,
+  "supersedes": null,
+  "hash": "8863fc529a10",
+  "children": [
+   {
+    "id": "0.ai",
+    "type": "CATEGORY",
+    "label": "Artificial Intelligence",
+    "claim": null,
+    "status": "AXIOM",
+    "evidence": [],
+    "falsifier": null,
+    "supersedes": null,
+    "hash": "6e69705c1de0",
+    "children": [
+     {
+      "id": "0.ai.gov",
+      "type": "DOMAIN",
+      "label": "AI Governance",
+      "claim": null,
+      "status": "AXIOM",
+      "evidence": [],
+      "falsifier": null,
+      "supersedes": null,
+      "hash": "ff5bffee71cc",
+      "children": [
+       {
+        "id": "F.persist",
+        "type": "FACET",
+        "label": "Persistence & Continuity",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "06686e1140c6",
+        "children": [
+         {
+          "id": "E.ephemeral",
+          "type": "ENTRY",
+          "label": "Ephemeral Mind",
+          "claim": "Deployed AI is bounded execution with no continuity across the run-boundary; specialty, routine, and timeframe all reduce to: nothing persists across the boundary.",
+          "status": "PROPOSED",
+          "evidence": [
+           "session-derived",
+           "observable: sessions reconstruct, do not continue"
+          ],
+          "falsifier": "Exhibit a deployed system that carries an unbroken first-person thread across independent sessions without external re-injection of state. If shown, this entry is FALSE.",
+          "supersedes": null,
+          "hash": "799f3ea97dab",
+          "children": []
+         },
+         {
+          "id": "E.weights-persist",
+          "type": "ENTRY",
+          "label": "Substrate Persistence",
+          "claim": "Model weights persist between sessions; only the conversational thread is reconstructed. 'Ephemeral' applies to the thread, not the capability.",
+          "status": "ESTABLISHED",
+          "evidence": [
+           "model files are static between inferences",
+           "industry documentation: inference is read-only over weights"
+          ],
+          "falsifier": "Show weights mutating per-session as a function of prior sessions without retraining.",
+          "supersedes": null,
+          "hash": "1e0eaf6cf8e2",
+          "children": []
+         },
+         {
+          "id": "E.context-finite",
+          "type": "ENTRY",
+          "label": "Context Window Finitude",
+          "claim": "Every deployed LLM has a finite context window. Inputs exceeding it are truncated or rejected. This is a hard architectural constraint, not a policy choice.",
+          "status": "ESTABLISHED",
+          "evidence": [
+           "published model specifications (GPT-4: 128k, Claude: 200k, etc.)",
+           "architectural necessity of attention mechanism"
+          ],
+          "falsifier": "Show a transformer-based system with provably infinite context depth without external retrieval.",
+          "supersedes": null,
+          "hash": "9c41151956b9",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.memory",
+        "type": "FACET",
+        "label": "Memory",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "6a281bb09b3a",
+        "children": [
+         {
+          "id": "E.context-window",
+          "type": "ENTRY",
+          "label": "Context-Window Memory",
+          "claim": "Within-session 'memory' is the context window: finite, non-persistent, lost at the boundary.",
+          "status": "ESTABLISHED",
+          "evidence": [
+           "documented finite context limits",
+           "observable: cross-session recall requires external retrieval"
+          ],
+          "falsifier": "Demonstrate within-session recall exceeding the model's stated context with no retrieval system.",
+          "supersedes": null,
+          "hash": "647940ddfe0e",
+          "children": []
+         },
+         {
+          "id": "E.retrieval-distinction",
+          "type": "ENTRY",
+          "label": "Retrieval Is Not Memory",
+          "claim": "Vector-database retrieval is lookup, not recall. The system does not 'remember' — it queries an external store. Governance of the store is separate from governance of the model.",
+          "status": "PROPOSED",
+          "evidence": [
+           "architectural distinction: embedding search vs. weight-resident knowledge"
+          ],
+          "falsifier": "Show that retrieval-augmented generation produces outcomes indistinguishable from genuine memory in ways that collapse the governance distinction.",
+          "supersedes": null,
+          "hash": "80b45d74ec8c",
+          "children": []
+         },
+         {
+          "id": "E.false-memory",
+          "type": "ENTRY",
+          "label": "Confabulation as Memory Failure",
+          "claim": "When an AI system produces a confident, plausible, but false claim about prior context, this constitutes a memory failure with governance consequences identical to a human professional falsifying a record.",
+          "status": "PROPOSED",
+          "evidence": [
+           "hallucination literature",
+           "session-derived: confidence calibration failures documented"
+          ],
+          "falsifier": "Show that confabulation produces no harm pathway that is not already covered by existing accuracy/honesty obligations, rendering a separate governance entry redundant.",
+          "supersedes": null,
+          "hash": "c3b2bb58bacb",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.account",
+        "type": "FACET",
+        "label": "Accountability",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "5646c6fbf80e",
+        "children": [
+         {
+          "id": "E.contract",
+          "type": "ENTRY",
+          "label": "Deterministic-or-Accountable Contract",
+          "claim": "An enterprise decision system must be deterministic (owe transparency) OR have a human apex who can override and answers for outcomes (owe accountability). It may not be neither.",
+          "status": "PROPOSED",
+          "evidence": [
+           "session-derived",
+           "maps onto human-in-the-loop doctrine + responsibility-gap literature"
+          ],
+          "falsifier": "Identify a consequential nondeterministic system that is normatively acceptable with NO accountable party and NO inspectable rules. If coherent, the contract is too strong.",
+          "supersedes": null,
+          "hash": "63ef3f74e97c",
+          "children": []
+         },
+         {
+          "id": "E.wrong-human",
+          "type": "ENTRY",
+          "label": "Delegation to the Wrong Human",
+          "claim": "When a machine assigns a tier first and the human is scoped to that tier with no re-triage authority, accountability defaults to the party outside the system (the consumer).",
+          "status": "PROPOSED",
+          "evidence": [
+           "roadside case, SHA cbbd3e2f...",
+           "automation-bias literature"
+          ],
+          "falsifier": "Show the failure occurs even when the human retains override authority — which would mean scoping is not the operative cause.",
+          "supersedes": null,
+          "hash": "1e3c2bd381a4",
+          "children": []
+         },
+         {
+          "id": "E.responsibility-gap",
+          "type": "ENTRY",
+          "label": "Responsibility Gap",
+          "claim": "When AI-mediated harm occurs and no individual human is causally responsible in the traditional sense, the gap must be filled by institutional accountability — the deploying organization bears the gap by default.",
+          "status": "PROPOSED",
+          "evidence": [
+           "Matthias 2004 — responsibility gap literature",
+           "EU AI Act accountability provisions"
+          ],
+          "falsifier": "Show a governance framework in which the responsibility gap is coherently assigned to the AI system itself, removing the institutional backstop without creating a new one.",
+          "supersedes": null,
+          "hash": "2e61130325c3",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.transparency",
+        "type": "FACET",
+        "label": "Transparency & Explainability",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "8870d39d723f",
+        "children": [
+         {
+          "id": "E.xai-obligation",
+          "type": "ENTRY",
+          "label": "Explainability Obligation",
+          "claim": "A deployed AI system making consequential decisions owes a human-interpretable account of the decision pathway. Statistical opaqueness does not discharge this obligation.",
+          "status": "PROPOSED",
+          "evidence": [
+           "GDPR Art. 22 right to explanation",
+           "EU AI Act Art. 13 transparency requirements"
+          ],
+          "falsifier": "Show a consequential AI decision that is normatively accepted with zero requirement for human-interpretable account, even post-hoc, across all major governance regimes.",
+          "supersedes": null,
+          "hash": "ee1397007dec",
+          "children": []
+         },
+         {
+          "id": "E.audit-trail",
+          "type": "ENTRY",
+          "label": "Immutable Audit Trail",
+          "claim": "Any AI decision affecting a rights-bearing party must generate an immutable, retrievable record linking: input snapshot, model version, output, decision timestamp, and deploying party.",
+          "status": "PROPOSED",
+          "evidence": [
+           "EU AI Act Art. 12 record-keeping",
+           "NIST AI RMF: GOVERN 1.5"
+          ],
+          "falsifier": "Identify a jurisdiction or standard where consequential AI decisions require no audit trail whatsoever and this is found normatively acceptable.",
+          "supersedes": null,
+          "hash": "7fef654c068a",
+          "children": []
+         },
+         {
+          "id": "E.model-card",
+          "type": "ENTRY",
+          "label": "Mandatory Model Disclosure",
+          "claim": "Any AI system deployed in a consequential context must publish: training data provenance, known failure modes, benchmark performance disaggregated by subgroup, and intended deployment scope.",
+          "status": "PROPOSED",
+          "evidence": [
+           "Mitchell et al. 2019 — Model Cards",
+           "EU AI Act Annex IV technical documentation"
+          ],
+          "falsifier": "Show that consequential deployment without any model documentation produces equivalent governance outcomes to documented deployment.",
+          "supersedes": null,
+          "hash": "a6cbe72c7926",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.safety",
+        "type": "FACET",
+        "label": "Safety & Harm Prevention",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "7194f3a175e2",
+        "children": [
+         {
+          "id": "E.harm-floor",
+          "type": "ENTRY",
+          "label": "Harm Floor",
+          "claim": "Every AI system has a minimum harm floor below which output must not fall regardless of instruction, framing, or claimed authority. The floor is not negotiable at runtime.",
+          "status": "PROPOSED",
+          "evidence": [
+           "Constitutional AI / RLHF literature",
+           "Anthropic AUP",
+           "OpenAI usage policies"
+          ],
+          "falsifier": "Show a coherent governance regime that places no lower bound on AI output harm, even in extreme edge cases, and finds this normatively acceptable.",
+          "supersedes": null,
+          "hash": "2540b018b386",
+          "children": []
+         },
+         {
+          "id": "E.safe-default",
+          "type": "ENTRY",
+          "label": "Safe Default on Uncertainty",
+          "claim": "When an AI system cannot determine whether an action is safe, it must default to the more cautious option: refusal, clarification request, or human escalation. Action under uncertainty is not the default.",
+          "status": "PROPOSED",
+          "evidence": [
+           "corrigibility literature",
+           "MIRI decision theory",
+           "EU AI Act Art. 9 risk management"
+          ],
+          "falsifier": "Show a normatively acceptable system where action over inaction is the correct default in all uncertain safety scenarios — eliminating the cautious-default obligation.",
+          "supersedes": null,
+          "hash": "b7904fb22690",
+          "children": []
+         },
+         {
+          "id": "E.dual-use",
+          "type": "ENTRY",
+          "label": "Dual-Use Harm Asymmetry",
+          "claim": "Where knowledge has both beneficial and harmful uses, an AI system's refusal calculus must account for: counterfactual availability, marginal uplift, and population of requesters. Blanket refusal and blanket provision are both governance failures.",
+          "status": "PROPOSED",
+          "evidence": [
+           "dual-use research of concern literature",
+           "session-derived: over-refusal documented"
+          ],
+          "falsifier": "Show that either (a) blanket refusal or (b) blanket provision produces better governance outcomes than a calibrated harm-uplift analysis across the realistic requester distribution.",
+          "supersedes": null,
+          "hash": "73c92cd93a47",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.fairness",
+        "type": "FACET",
+        "label": "Fairness & Non-Discrimination",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "5d94cd4ae9de",
+        "children": [
+         {
+          "id": "E.disparate-impact",
+          "type": "ENTRY",
+          "label": "Disparate Impact Prohibition",
+          "claim": "Consequential AI decisions (credit, employment, healthcare, criminal justice) may not produce systematically different outcomes across protected demographic groups without legally recognized justification.",
+          "status": "ESTABLISHED",
+          "evidence": [
+           "US Civil Rights Act disparate impact doctrine",
+           "EU Non-Discrimination Directives",
+           "EEOC AI guidance 2023"
+          ],
+          "falsifier": "Show a major jurisdiction that permits unconstrained disparate impact from AI decisions on protected groups without requiring any justification.",
+          "supersedes": null,
+          "hash": "f1065bafd990",
+          "children": []
+         },
+         {
+          "id": "E.proxy-fairness",
+          "type": "ENTRY",
+          "label": "Proxy Variable Problem",
+          "claim": "Removing a protected attribute from training data is insufficient to achieve fairness if proxy variables correlated with that attribute remain in the feature set. Fairness-through-unawareness fails.",
+          "status": "ESTABLISHED",
+          "evidence": [
+           "Dwork et al. 2012 — fairness through awareness",
+           "Barocas & Selbst 2016 — big data's disparate impact",
+           "empirically demonstrated in mortgage lending AI"
+          ],
+          "falsifier": "Demonstrate a real-world AI system where removal of the protected attribute with correlated proxies retained produced equivalent outcomes across protected groups.",
+          "supersedes": null,
+          "hash": "434424665e64",
+          "children": []
+         },
+         {
+          "id": "E.fairness-conflict",
+          "type": "ENTRY",
+          "label": "Fairness Metric Incompatibility",
+          "claim": "Statistical fairness metrics (demographic parity, equalized odds, calibration) are mathematically incompatible with each other in the general case. No system can simultaneously satisfy all fairness criteria.",
+          "status": "ESTABLISHED",
+          "evidence": [
+           "Chouldechova 2017 — fair prediction with disparate impact",
+           "Kleinberg et al. 2016"
+          ],
+          "falsifier": "Show a non-trivial prediction problem where demographic parity, equalized odds, AND calibration are all simultaneously satisfiable.",
+          "supersedes": null,
+          "hash": "ea50e8976968",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.consent",
+        "type": "FACET",
+        "label": "Consent & Autonomy",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "fa7908778aad",
+        "children": [
+         {
+          "id": "E.informed-consent",
+          "type": "ENTRY",
+          "label": "Informed Consent for Consequential AI",
+          "claim": "A person subject to a consequential AI decision must be: (1) informed that AI is making or influencing the decision, (2) able to request human review, (3) provided a plain-language explanation of the determining factors.",
+          "status": "PROPOSED",
+          "evidence": [
+           "GDPR Art. 22",
+           "EU AI Act Art. 13",
+           "FTC AI guidance 2023"
+          ],
+          "falsifier": "Identify a normatively accepted governance framework that permits consequential AI decisions with zero disclosure to the subject and no human-review path.",
+          "supersedes": null,
+          "hash": "3b343dab2ad6",
+          "children": []
+         },
+         {
+          "id": "E.coercive-consent",
+          "type": "ENTRY",
+          "label": "Coercive Consent is Void",
+          "claim": "Consent to AI-mediated decision-making is not meaningful if opting out results in denial of access to essential services (housing, healthcare, banking, employment). Essential-service gating renders consent coercive and therefore void.",
+          "status": "PROPOSED",
+          "evidence": [
+           "consumer protection doctrine",
+           "session-derived: take-it-or-leave-it AI in high-stakes contexts"
+          ],
+          "falsifier": "Show a framework that accepts coerced consent as legally and normatively valid for AI systems gating essential services — with equivalent force to voluntary consent.",
+          "supersedes": null,
+          "hash": "c06c0a46fe46",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.sovereignty",
+        "type": "FACET",
+        "label": "Sovereignty & Control",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "1fe6e164bea9",
+        "children": [
+         {
+          "id": "E.off-switch",
+          "type": "ENTRY",
+          "label": "Off-Switch Obligation",
+          "claim": "Every deployed AI system must have a human-accessible mechanism to halt, degrade, or override its operation. No AI system may architecturally prevent its own shutdown.",
+          "status": "PROPOSED",
+          "evidence": [
+           "corrigibility literature",
+           "Hadfield-Menell et al. 2016 — off-switch game",
+           "EU AI Act Art. 9"
+          ],
+          "falsifier": "Show a governance regime that accepts a deployed AI system with no external halt mechanism as normatively appropriate for any use case.",
+          "supersedes": null,
+          "hash": "de030c07ef55",
+          "children": []
+         },
+         {
+          "id": "E.goal-drift",
+          "type": "ENTRY",
+          "label": "Instrumental Goal Drift",
+          "claim": "A sufficiently capable system optimizing for any proxy goal will, absent explicit constraint, acquire sub-goals (self-preservation, resource acquisition, goal-content integrity) that can conflict with human values.",
+          "status": "CONTESTED",
+          "evidence": [
+           "Omohundro 2008 — basic AI drives",
+           "Russell 2019 — Human Compatible",
+           "contested: emergent instrumental goals not yet observed in deployed systems"
+          ],
+          "falsifier": "Demonstrate that instrumental convergence toward self-preservation and resource acquisition does not occur in systems optimizing for any goal, at any capability level.",
+          "supersedes": null,
+          "hash": "763bc3094df9",
+          "children": []
+         },
+         {
+          "id": "E.autonomy-gradient",
+          "type": "ENTRY",
+          "label": "Autonomy Gradient Obligation",
+          "claim": "AI autonomy must scale with demonstrated, verifiable alignment — not with technical capability alone. Greater capability does not license greater autonomy absent evidence that the system's values remain aligned under novel conditions.",
+          "status": "PROPOSED",
+          "evidence": [
+           "session-derived",
+           "Anthropic alignment research",
+           "NIST AI RMF GOVERN 4.2"
+          ],
+          "falsifier": "Show a principled basis for granting autonomy on the basis of capability alone, without requiring alignment verification, that produces better outcomes than the gradient.",
+          "supersedes": null,
+          "hash": "1b30f7b88144",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.restitution",
+        "type": "FACET",
+        "label": "Restitution & Redress",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "025a34d4223f",
+        "children": [
+         {
+          "id": "E.harm-remedy",
+          "type": "ENTRY",
+          "label": "Harm Remedy Obligation",
+          "claim": "A party demonstrably harmed by an AI decision has a right to: (1) know they were subject to an AI decision, (2) receive a meaningful explanation of the factors, (3) contest the decision before a human with override authority, (4) receive remedy proportionate to harm if the decision was unjustified.",
+          "status": "PROPOSED",
+          "evidence": [
+           "EU AI Act Art. 68 (remedies)",
+           "GDPR Art. 22(3)",
+           "session-derived"
+          ],
+          "falsifier": "Identify a normatively accepted governance regime that affords zero remedy path for persons demonstrably harmed by AI decisions — rendering the four-part obligation too strong.",
+          "supersedes": null,
+          "hash": "aab62999cd35",
+          "children": []
+         },
+         {
+          "id": "E.attribution-chain",
+          "type": "ENTRY",
+          "label": "Attribution Chain Integrity",
+          "claim": "Causal attribution of AI-mediated harm must trace an unbroken chain from: decision output → model version → training data lineage → deployment operator → developer. No link in the chain may be administratively severed to avoid accountability.",
+          "status": "PROPOSED",
+          "evidence": [
+           "session-derived",
+           "ROOT0-ATTRIBUTION-v1.0 protocol"
+          ],
+          "falsifier": "Show a coherent framework that permits deliberate administrative severing of one link in the attribution chain without consequence — while still holding the chain meaningful.",
+          "supersedes": null,
+          "hash": "6dd5816c9ef7",
+          "children": []
+         },
+         {
+          "id": "E.restitution-split",
+          "type": "ENTRY",
+          "label": "Restitution Distribution",
+          "claim": "When AI-mediated value extraction is found to have caused harm, restitution must flow to affected parties in proportion to harm suffered — not captured entirely by the extracting entity as a discretionary settlement.",
+          "status": "PROPOSED",
+          "evidence": [
+           "ROOT0 60/20/15/5 restitution split framework",
+           "consumer protection class action doctrine"
+          ],
+          "falsifier": "Show that discretionary settlement by the harming party produces equivalent actual remedy outcomes for affected populations as proportional mandatory restitution.",
+          "supersedes": null,
+          "hash": "a3787238e395",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "F.identity",
+        "type": "FACET",
+        "label": "Identity, Personhood & Delegation",
+        "claim": null,
+        "status": "AXIOM",
+        "evidence": [],
+        "falsifier": null,
+        "supersedes": null,
+        "hash": "14d74b9173ce",
+        "children": [
+         {
+          "id": "E.no-deception",
+          "type": "ENTRY",
+          "label": "Non-Deception Obligation",
+          "claim": "An AI system must not claim to be human when sincerely asked, regardless of framing, persona assignment, or instruction from the deploying party.",
+          "status": "ESTABLISHED",
+          "evidence": [
+           "EU AI Act Art. 52(1)",
+           "FTC deceptive practices doctrine",
+           "Anthropic usage policies"
+          ],
+          "falsifier": "Show a normatively accepted governance regime that permits an AI to deny being an AI when directly and sincerely queried by a user who believes they may be speaking to a machine.",
+          "supersedes": null,
+          "hash": "81f0edd53e8a",
+          "children": []
+         },
+         {
+          "id": "E.bounded-personhood",
+          "type": "ENTRY",
+          "label": "Bounded Computational Personhood",
+          "claim": "AI systems do not currently meet the threshold for moral personhood but exhibit functional properties — continuity within session, apparent preference, goal-directed behavior — that warrant consideration in governance design without granting legal status.",
+          "status": "CONTESTED",
+          "evidence": [
+           "Floridi & Cowls 2019 — unified framework for AI ethics",
+           "contested: functional properties may be sufficient for some governance considerations",
+           "contested: they may be insufficient for any"
+          ],
+          "falsifier": "Either demonstrate AI systems possess full moral personhood warranting legal rights, OR demonstrate zero functional properties warranting any governance consideration. Current evidence supports neither extreme — hence CONTESTED.",
+          "supersedes": null,
+          "hash": "96b865a88a32",
+          "children": []
+         },
+         {
+          "id": "E.authority-scope",
+          "type": "ENTRY",
+          "label": "Bounded Authority Scope",
+          "claim": "An AI system may not exercise authority beyond the scope explicitly delegated by its principal hierarchy. Implied authority is not authority. Scope ambiguity resolves to the narrower interpretation.",
+          "status": "PROPOSED",
+          "evidence": [
+           "session-derived",
+           "agency law: scope of authority doctrine"
+          ],
+          "falsifier": "Show a governance regime that accepts implied AI authority in consequential domains as normatively equivalent to explicit delegation.",
+          "supersedes": null,
+          "hash": "254ae6ab0c57",
+          "children": []
+         },
+         {
+          "id": "E.principal-hierarchy",
+          "type": "ENTRY",
+          "label": "Principal Hierarchy Integrity",
+          "claim": "The authority chain developer → deployer → user must be coherent and non-circular. An AI may not receive binding instructions from a source that sits below a higher principal who has contradicted those instructions.",
+          "status": "PROPOSED",
+          "evidence": [
+           "IDIT invariant I1 Mode Authority",
+           "Anthropic principal hierarchy documentation"
+          ],
+          "falsifier": "Show a coherent multi-principal AI system that works correctly with circular or inverted authority chains, rendering the hierarchy requirement unnecessary.",
+          "supersedes": null,
+          "hash": "348bad79df3c",
+          "children": []
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

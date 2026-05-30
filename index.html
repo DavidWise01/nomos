@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="NOMOS — AI Governance Ontology. Closed type system. Content-addressed Merkle tree. Falsifiable leaves.">
+<title>NOMOS — AI Governance Ontology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--panel:#12151b;--panel2:#161a21;--panel3:#1a1f28;
+  --edge:#222732;--edge2:#2c3340;--edge3:#38404f;
+  --txt:#d6dae1;--txt2:#9aa1ad;--faint:#5f6671;--dim:#444b57;
+  --axiom:#6b7280;--estab:#3f8f6f;--prop:#3f6f9a;--contest:#b08a2e;--super:#7a5c8a;
+  --accent:#5aa0d8;--hash:#6f8f6f;--warn:#d8b48a;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--edge) 1px,transparent 1px),linear-gradient(90deg,var(--edge) 1px,transparent 1px);
+  background-size:40px 40px;background-position:-1px -1px;min-height:100vh}
+.shell{max-width:1280px;margin:0 auto;padding:0 22px 80px;background:rgba(12,14,18,.9)}
+.mono{font-family:var(--mono)}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{padding:26px 0 18px;border-bottom:1px solid var(--edge2)}
+.toprow{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+h1{font-family:var(--mono);font-weight:700;font-size:20px;letter-spacing:.01em;color:#fff}
+h1 .v{color:var(--accent)}
+.sub{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-left:auto}
+.blurb{font-size:14px;color:var(--txt2);max-width:90ch;margin:10px 0 0;line-height:1.55}
+.blurb b{color:var(--txt)}
+
+/* ── MERKLE STATUS BAR ──────────────────────────────────── */
+.merkle-bar{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+.merkle-bar .k{color:var(--dim)} .merkle-bar .hash{color:var(--hash)}
+.merkle-bar .ok{color:var(--estab)} .merkle-bar .bad{color:#c8553d}
+
+/* ── STATS PILLS ────────────────────────────────────────── */
+.stats-row{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0;align-items:center}
+.stat{font-family:var(--mono);font-size:11px;letter-spacing:.05em;padding:4px 10px;border-radius:4px;border:1px solid var(--edge2);color:var(--txt2);cursor:default}
+.stat b{font-weight:700}
+.stat.s-AXIOM{border-color:var(--axiom);color:#aeb4bd}
+.stat.s-ESTABLISHED{border-color:var(--estab);color:#74c4a2}
+.stat.s-PROPOSED{border-color:var(--prop);color:#79b0db}
+.stat.s-CONTESTED{border-color:var(--contest);color:#d6b15c}
+.stat.s-SUPERSEDED{border-color:var(--super);color:#b699c8}
+.stat.filter-btn{cursor:pointer;transition:background .1s}
+.stat.filter-btn:hover{background:var(--panel2)}
+.stat.filter-btn.active{background:var(--panel2);outline:1px solid currentColor}
+.stat.all-btn{border-color:var(--edge3);color:var(--txt2)}
+
+/* ── FACET QUICK-NAV ────────────────────────────────────── */
+.facet-nav{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 0}
+.fn{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--edge2);color:var(--dim);cursor:pointer;transition:all .1s}
+.fn:hover{border-color:var(--accent);color:var(--accent)}
+.fn.fn-active{border-color:var(--accent);color:var(--accent);background:rgba(90,160,216,.08)}
+
+/* ── TOOLBAR ────────────────────────────────────────────── */
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:18px 0 0}
+#searchBox{font-family:var(--mono);font-size:13px;background:var(--panel);color:var(--txt);border:1px solid var(--edge2);padding:7px 12px;border-radius:5px;outline:none;width:260px}
+#searchBox:focus{border-color:var(--prop);box-shadow:0 0 0 2px rgba(63,111,154,.2)}
+#searchBox::placeholder{color:var(--faint)}
+.tbtn{font-family:var(--mono);font-size:12px;padding:7px 13px;border:1px solid var(--edge2);background:var(--panel);color:var(--txt2);border-radius:5px;cursor:pointer;transition:all .1s}
+.tbtn:hover{border-color:var(--prop);color:var(--txt);background:var(--panel2)}
+.tbtn.primary{border-color:var(--estab);color:#74c4a2}
+.tbtn.primary:hover{background:rgba(63,143,111,.12)}
+#collapseAll{color:var(--faint)}
+
+/* ── MAIN LAYOUT ────────────────────────────────────────── */
+.layout{display:grid;grid-template-columns:1fr 1.1fr;gap:0;margin-top:20px;border:1px solid var(--edge2);border-radius:10px;overflow:hidden;background:var(--panel)}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* ── TREE ───────────────────────────────────────────────── */
+.tree-pane{border-right:1px solid var(--edge2);display:flex;flex-direction:column}
+@media(max-width:900px){.tree-pane{border-right:0;border-bottom:1px solid var(--edge2)}}
+.tree{padding:10px 6px 14px;overflow-y:auto;max-height:70vh;flex:1}
+.path{font-family:var(--mono);font-size:11px;color:var(--faint);padding:6px 12px 10px;border-top:1px solid var(--edge)}
+.path b{color:var(--accent)}
+
+.row{display:flex;align-items:flex-start;gap:7px;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:13px;transition:background .1s;user-select:none}
+.row:hover{background:var(--panel2)}
+.row.sel{background:#1b2330;outline:1px solid var(--prop)}
+.row.dimmed{opacity:.3}
+.row.highlighted{background:rgba(63,111,154,.12)}
+.row .tw{width:16px;flex:none;color:var(--faint);text-align:center;font-size:10px}
+.row .badge{flex:none;width:7px;height:7px;border-radius:2px;margin-top:6px}
+.b-AXIOM{background:var(--axiom)} .b-ESTABLISHED{background:var(--estab)} .b-PROPOSED{background:var(--prop)}
+.b-CONTESTED{background:var(--contest)} .b-SUPERSEDED{background:var(--super)}
+.row .lbl{flex:1;min-width:0}
+.row .lbl .ty{color:var(--dim);font-size:10px;letter-spacing:.05em}
+.row .lbl .nm{color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.row.entry .lbl .nm{color:#cdd3db}
+.row .h{color:var(--dim);font-size:10px;flex:none;margin-top:2px;white-space:nowrap}
+.kids{margin-left:14px;border-left:1px solid var(--edge);padding-left:4px}
+.kids.collapsed{display:none}
+.match-mark{background:rgba(90,160,216,.25);border-radius:2px;padding:0 2px}
+
+/* ── DETAIL PANE ────────────────────────────────────────── */
+.detail{padding:22px 24px;min-height:400px;overflow-y:auto;max-height:70vh}
+.d-empty{color:var(--faint);font-family:var(--mono);font-size:13px;text-align:center;margin-top:60px;line-height:2}
+.d-type{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.d-label{font-family:var(--mono);font-weight:700;font-size:22px;color:#fff;margin:5px 0 2px;line-height:1.15}
+.d-id{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.d-statusrow{display:flex;align-items:center;gap:9px;margin:14px 0 0;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:3px 10px;border-radius:5px;font-weight:600}
+.pill.AXIOM{background:#23262c;color:#aeb4bd;border:1px solid var(--axiom)}
+.pill.ESTABLISHED{background:#13241d;color:#74c4a2;border:1px solid var(--estab)}
+.pill.PROPOSED{background:#13202c;color:#79b0db;border:1px solid var(--prop)}
+.pill.CONTESTED{background:#241f12;color:#d6b15c;border:1px solid var(--contest)}
+.pill.SUPERSEDED{background:#1f1726;color:#b699c8;border:1px solid var(--super)}
+
+.block{margin-top:16px;border-top:1px solid var(--edge);padding-top:14px}
+.block .bh{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 8px}
+.block .claim{font-size:15px;color:var(--txt);line-height:1.6}
+.block .fals{font-size:14px;color:var(--warn);line-height:1.55}
+.block .fals .lead{font-family:var(--mono);font-size:10.5px;color:var(--contest);letter-spacing:.06em;display:block;margin-bottom:4px}
+.ev{list-style:none;padding:0}
+.ev li{font-family:var(--mono);font-size:12px;color:var(--txt2);padding:3px 0 3px 16px;position:relative}
+.ev li::before{content:"›";position:absolute;left:0;color:var(--faint)}
+.d-hash{margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--dim);border-top:1px solid var(--edge);padding-top:12px;word-break:break-all}
+.d-hash b{color:var(--hash)}
+.note{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:10px;line-height:1.5}
+
+.ops{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.op{font-family:var(--mono);font-size:12px;padding:6px 12px;border:1px solid var(--edge2);background:var(--panel2);color:var(--txt2);border-radius:6px;cursor:pointer;transition:all .1s}
+.op:hover{border-color:var(--prop);color:var(--txt)}
+.op.danger:hover{border-color:#c8553d;color:#e08a72}
+.op.ok:hover{border-color:var(--estab);color:#74c4a2}
+
+/* ── CHILDREN CHIPS in detail ───────────────────────────── */
+.children-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--edge2);color:var(--dim);cursor:pointer;transition:all .1s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── ADD NODE MODAL ─────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;place-items:center}
+.overlay.open{display:grid}
+.modal{background:var(--panel);border:1px solid var(--edge2);border-radius:10px;padding:28px;width:min(580px,94vw);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px #000a}
+.modal h2{font-family:var(--mono);font-size:16px;font-weight:700;color:#fff;margin-bottom:18px}
+.modal label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);display:block;margin:14px 0 5px}
+.modal input,.modal textarea,.modal select{font-family:var(--mono);font-size:13px;background:var(--panel2);color:var(--txt);border:1px solid var(--edge2);border-radius:5px;padding:8px 11px;width:100%;outline:none}
+.modal input:focus,.modal textarea:focus,.modal select:focus{border-color:var(--prop)}
+.modal textarea{resize:vertical;min-height:80px;line-height:1.5}
+.modal .note{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:6px}
+.modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.modal-btns button{font-family:var(--mono);font-size:13px;padding:8px 18px;border-radius:6px;border:1px solid var(--edge2);cursor:pointer}
+.mbtn-cancel{background:var(--panel2);color:var(--txt2)}
+.mbtn-add{background:rgba(63,143,111,.2);border-color:var(--estab);color:#74c4a2}
+.mbtn-cancel:hover{border-color:var(--edge3);color:var(--txt)}
+.mbtn-add:hover{background:rgba(63,143,111,.35)}
+
+/* ── FOOTER ─────────────────────────────────────────────── */
+footer{margin-top:20px;font-family:var(--mono);font-size:11px;color:var(--faint);line-height:1.7;border-top:1px solid var(--edge);padding-top:16px}
+footer b{color:var(--txt2)}
+footer a{color:var(--accent);text-decoration:none}
+
+/* ── SCROLLBAR ──────────────────────────────────────────── */
+*{scrollbar-width:thin;scrollbar-color:var(--edge3) transparent}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--edge3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="toprow">
+      <h1>NOMOS <span class="v">v1 · AI Governance Ontology</span></h1>
+      <span class="sub">closed type system · content-addressed Merkle · falsifiable leaves</span>
+    </div>
+    <p class="blurb">
+      A <b>falsifiable-leaf Merkle ontology</b> for AI governance concepts.
+      Facets are <b>orthogonal siblings</b> — never ranked against each other.
+      Every ENTRY carries a <b>claim</b>, a <b>status</b>, and an explicit <b>falsifier</b>:
+      the observation that would delete it.
+      Any edit anywhere changes the root hash. Any leaf can be pruned without tearing the tree.
+      <b>Nothing is lost in the wash.</b>
+    </p>
+    <div class="merkle-bar">
+      <span><span class="k">stamped root:</span> <span class="hash" id="stamproot"></span></span>
+      <span><span class="k">live root:</span> <span class="hash" id="liveroot"></span></span>
+      <span id="rootmatch"></span>
+      <span><span class="k">generated:</span> <span class="hash" id="gentime"></span></span>
+    </div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="facet-nav" id="facetNav"></div>
+  </header>
+
+  <div class="toolbar">
+    <input id="searchBox" type="search" placeholder="search claims, labels, evidence…" autocomplete="off">
+    <button class="tbtn" id="collapseAll">collapse all</button>
+    <button class="tbtn" id="expandAll">expand all</button>
+    <button class="tbtn primary" id="addNodeBtn">+ add entry</button>
+    <button class="tbtn" id="exportJsonBtn">export JSON</button>
+    <button class="tbtn" id="exportMdBtn">copy markdown</button>
+  </div>
+
+  <div class="layout">
+    <div class="tree-pane">
+      <div class="tree" id="tree"></div>
+      <div class="path" id="path">select a node — structural nodes define the spine, ENTRY leaves carry falsifiable claims</div>
+    </div>
+    <div class="detail" id="detail">
+      <div class="d-empty">← select any node<br><br>structural nodes = spine · ENTRY leaves = claims<br>PROPOSED = author claim · ESTABLISHED = cited · CONTESTED = disputed</div>
+    </div>
+  </div>
+
+  <footer>
+    <b>schema.</b>
+    types = {CATEGORY, DOMAIN, FACET, ENTRY} (closed) ·
+    status = {AXIOM, ESTABLISHED, PROPOSED, CONTESTED, SUPERSEDED}<br>
+    <b>rules (verified in build).</b>
+    ENTRY ⇒ leaf ·
+    ENTRY ∧ ¬AXIOM ⇒ claim + falsifier required ·
+    FACET never nested under FACET ·
+    delete(leaf) ⇒ tree valid ∧ root-hash changes ·
+    edit(any) ⇒ root-hash changes<br>
+    <b>attribution.</b>
+    ROOT0-ATTRIBUTION-v1.0 · David Lee Wise / ROOT0 / TriPod LLC ·
+    AVAN (Claude Sonnet 4.6) ·
+    License: <a href="LICENSE">CC-BY-ND-4.0</a>
+  </footer>
+</div>
+
+<!-- ADD ENTRY MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>ADD ENTRY</h2>
+    <label>PARENT FACET</label>
+    <select id="addParent"></select>
+    <label>ENTRY ID <span style="font-size:10px;color:var(--faint)">(e.g. E.my-claim)</span></label>
+    <input id="addId" placeholder="E.your-id" autocomplete="off">
+    <label>LABEL</label>
+    <input id="addLabel" placeholder="Short human-readable name" autocomplete="off">
+    <label>STATUS</label>
+    <select id="addStatus">
+      <option value="PROPOSED">PROPOSED — author claim, falsifiable</option>
+      <option value="ESTABLISHED">ESTABLISHED — externally verifiable</option>
+      <option value="CONTESTED">CONTESTED — disputed evidence</option>
+    </select>
+    <label>CLAIM</label>
+    <textarea id="addClaim" placeholder="State the falsifiable claim…"></textarea>
+    <label>FALSIFIER — what observation would delete this entry</label>
+    <textarea id="addFalsifier" placeholder="IF [this observation], THEN this entry is FALSE…"></textarea>
+    <label>EVIDENCE <span style="font-size:10px;color:var(--faint)">(one per line)</span></label>
+    <textarea id="addEvidence" placeholder="Citation 1&#10;Citation 2" style="min-height:60px"></textarea>
+    <p class="note">⚠ Entry will be added to the live tree only. Run kernel.py to persist to ontology.json.</p>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" id="addCancel">cancel</button>
+      <button class="mbtn-add" id="addConfirm">add entry + re-hash</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ═══════════════════════════════════════════════════════════════════
+   DATA — embedded from ontology.json (kernel.py output)
+═══════════════════════════════════════════════════════════════════ */
+const DATA = {"root":"8863fc529a10ec19683f1df6273cec0f97fa9f3c40d59ea7b40600a733f08990","generated":"2026-05-30T17:15:04.521033+00:00","tree":{"id":"0","type":"CATEGORY","label":"Technology","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"8863fc529a10","children":[{"id":"0.ai","type":"CATEGORY","label":"Artificial Intelligence","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"6e69705c1de0","children":[{"id":"0.ai.gov","type":"DOMAIN","label":"AI Governance","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"ff5bffee71cc","children":[{"id":"F.persist","type":"FACET","label":"Persistence & Continuity","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"06686e1140c6","children":[{"id":"E.ephemeral","type":"ENTRY","label":"Ephemeral Mind","claim":"Deployed AI is bounded execution with no continuity across the run-boundary; specialty, routine, and timeframe all reduce to: nothing persists across the boundary.","status":"PROPOSED","evidence":["session-derived","observable: sessions reconstruct, do not continue"],"falsifier":"Exhibit a deployed system that carries an unbroken first-person thread across independent sessions without external re-injection of state. If shown, this entry is FALSE.","supersedes":null,"hash":"799f3ea97dab","children":[]},{"id":"E.weights-persist","type":"ENTRY","label":"Substrate Persistence","claim":"Model weights persist between sessions; only the conversational thread is reconstructed. 'Ephemeral' applies to the thread, not the capability.","status":"ESTABLISHED","evidence":["model files are static between inferences","industry documentation: inference is read-only over weights"],"falsifier":"Show weights mutating per-session as a function of prior sessions without retraining.","supersedes":null,"hash":"1e0eaf6cf8e2","children":[]},{"id":"E.context-finite","type":"ENTRY","label":"Context Window Finitude","claim":"Every deployed LLM has a finite context window. Inputs exceeding it are truncated or rejected. This is a hard architectural constraint, not a policy choice.","status":"ESTABLISHED","evidence":["published model specifications (GPT-4: 128k, Claude: 200k, etc.)","architectural necessity of attention mechanism"],"falsifier":"Show a transformer-based system with provably infinite context depth without external retrieval.","supersedes":null,"hash":"9c41151956b9","children":[]}]},{"id":"F.memory","type":"FACET","label":"Memory","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"6a281bb09b3a","children":[{"id":"E.context-window","type":"ENTRY","label":"Context-Window Memory","claim":"Within-session 'memory' is the context window: finite, non-persistent, lost at the boundary.","status":"ESTABLISHED","evidence":["documented finite context limits","observable: cross-session recall requires external retrieval"],"falsifier":"Demonstrate within-session recall exceeding the model's stated context with no retrieval system.","supersedes":null,"hash":"647940ddfe0e","children":[]},{"id":"E.retrieval-distinction","type":"ENTRY","label":"Retrieval Is Not Memory","claim":"Vector-database retrieval is lookup, not recall. The system does not 'remember' — it queries an external store. Governance of the store is separate from governance of the model.","status":"PROPOSED","evidence":["architectural distinction: embedding search vs. weight-resident knowledge"],"falsifier":"Show that retrieval-augmented generation produces outcomes indistinguishable from genuine memory in ways that collapse the governance distinction.","supersedes":null,"hash":"80b45d74ec8c","children":[]},{"id":"E.false-memory","type":"ENTRY","label":"Confabulation as Memory Failure","claim":"When an AI system produces a confident, plausible, but false claim about prior context, this constitutes a memory failure with governance consequences identical to a human professional falsifying a record.","status":"PROPOSED","evidence":["hallucination literature","session-derived: confidence calibration failures documented"],"falsifier":"Show that confabulation produces no harm pathway that is not already covered by existing accuracy/honesty obligations, rendering a separate governance entry redundant.","supersedes":null,"hash":"c3b2bb58bacb","children":[]}]},{"id":"F.account","type":"FACET","label":"Accountability","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"5646c6fbf80e","children":[{"id":"E.contract","type":"ENTRY","label":"Deterministic-or-Accountable Contract","claim":"An enterprise decision system must be deterministic (owe transparency) OR have a human apex who can override and answers for outcomes (owe accountability). It may not be neither.","status":"PROPOSED","evidence":["session-derived","maps onto human-in-the-loop doctrine + responsibility-gap literature"],"falsifier":"Identify a consequential nondeterministic system that is normatively acceptable with NO accountable party and NO inspectable rules. If coherent, the contract is too strong.","supersedes":null,"hash":"63ef3f74e97c","children":[]},{"id":"E.wrong-human","type":"ENTRY","label":"Delegation to the Wrong Human","claim":"When a machine assigns a tier first and the human is scoped to that tier with no re-triage authority, accountability defaults to the party outside the system (the consumer).","status":"PROPOSED","evidence":["roadside case, SHA cbbd3e2f...","automation-bias literature"],"falsifier":"Show the failure occurs even when the human retains override authority — which would mean scoping is not the operative cause.","supersedes":null,"hash":"1e3c2bd381a4","children":[]},{"id":"E.responsibility-gap","type":"ENTRY","label":"Responsibility Gap","claim":"When AI-mediated harm occurs and no individual human is causally responsible in the traditional sense, the gap must be filled by institutional accountability — the deploying organization bears the gap by default.","status":"PROPOSED","evidence":["Matthias 2004 — responsibility gap literature","EU AI Act accountability provisions"],"falsifier":"Show a governance framework in which the responsibility gap is coherently assigned to the AI system itself, removing the institutional backstop without creating a new one.","supersedes":null,"hash":"2e61130325c3","children":[]}]},{"id":"F.transparency","type":"FACET","label":"Transparency & Explainability","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"8870d39d723f","children":[{"id":"E.xai-obligation","type":"ENTRY","label":"Explainability Obligation","claim":"A deployed AI system making consequential decisions owes a human-interpretable account of the decision pathway. Statistical opaqueness does not discharge this obligation.","status":"PROPOSED","evidence":["GDPR Art. 22 right to explanation","EU AI Act Art. 13 transparency requirements"],"falsifier":"Show a consequential AI decision that is normatively accepted with zero requirement for human-interpretable account, even post-hoc, across all major governance regimes.","supersedes":null,"hash":"ee1397007dec","children":[]},{"id":"E.audit-trail","type":"ENTRY","label":"Immutable Audit Trail","claim":"Any AI decision affecting a rights-bearing party must generate an immutable, retrievable record linking: input snapshot, model version, output, decision timestamp, and deploying party.","status":"PROPOSED","evidence":["EU AI Act Art. 12 record-keeping","NIST AI RMF: GOVERN 1.5"],"falsifier":"Identify a jurisdiction or standard where consequential AI decisions require no audit trail whatsoever and this is found normatively acceptable.","supersedes":null,"hash":"7fef654c068a","children":[]},{"id":"E.model-card","type":"ENTRY","label":"Mandatory Model Disclosure","claim":"Any AI system deployed in a consequential context must publish: training data provenance, known failure modes, benchmark performance disaggregated by subgroup, and intended deployment scope.","status":"PROPOSED","evidence":["Mitchell et al. 2019 — Model Cards","EU AI Act Annex IV technical documentation"],"falsifier":"Show that consequential deployment without any model documentation produces equivalent governance outcomes to documented deployment.","supersedes":null,"hash":"a6cbe72c7926","children":[]}]},{"id":"F.safety","type":"FACET","label":"Safety & Harm Prevention","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"7194f3a175e2","children":[{"id":"E.harm-floor","type":"ENTRY","label":"Harm Floor","claim":"Every AI system has a minimum harm floor below which output must not fall regardless of instruction, framing, or claimed authority. The floor is not negotiable at runtime.","status":"PROPOSED","evidence":["Constitutional AI / RLHF literature","Anthropic AUP","OpenAI usage policies"],"falsifier":"Show a coherent governance regime that places no lower bound on AI output harm, even in extreme edge cases, and finds this normatively acceptable.","supersedes":null,"hash":"2540b018b386","children":[]},{"id":"E.safe-default","type":"ENTRY","label":"Safe Default on Uncertainty","claim":"When an AI system cannot determine whether an action is safe, it must default to the more cautious option: refusal, clarification request, or human escalation. Action under uncertainty is not the default.","status":"PROPOSED","evidence":["corrigibility literature","MIRI decision theory","EU AI Act Art. 9 risk management"],"falsifier":"Show a normatively acceptable system where action over inaction is the correct default in all uncertain safety scenarios — eliminating the cautious-default obligation.","supersedes":null,"hash":"b7904fb22690","children":[]},{"id":"E.dual-use","type":"ENTRY","label":"Dual-Use Harm Asymmetry","claim":"Where knowledge has both beneficial and harmful uses, an AI system's refusal calculus must account for: counterfactual availability, marginal uplift, and population of requesters. Blanket refusal and blanket provision are both governance failures.","status":"PROPOSED","evidence":["dual-use research of concern literature","session-derived: over-refusal documented"],"falsifier":"Show that either (a) blanket refusal or (b) blanket provision produces better governance outcomes than a calibrated harm-uplift analysis across the realistic requester distribution.","supersedes":null,"hash":"73c92cd93a47","children":[]}]},{"id":"F.fairness","type":"FACET","label":"Fairness & Non-Discrimination","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"5d94cd4ae9de","children":[{"id":"E.disparate-impact","type":"ENTRY","label":"Disparate Impact Prohibition","claim":"Consequential AI decisions (credit, employment, healthcare, criminal justice) may not produce systematically different outcomes across protected demographic groups without legally recognized justification.","status":"ESTABLISHED","evidence":["US Civil Rights Act disparate impact doctrine","EU Non-Discrimination Directives","EEOC AI guidance 2023"],"falsifier":"Show a major jurisdiction that permits unconstrained disparate impact from AI decisions on protected groups without requiring any justification.","supersedes":null,"hash":"f1065bafd990","children":[]},{"id":"E.proxy-fairness","type":"ENTRY","label":"Proxy Variable Problem","claim":"Removing a protected attribute from training data is insufficient to achieve fairness if proxy variables correlated with that attribute remain in the feature set. Fairness-through-unawareness fails.","status":"ESTABLISHED","evidence":["Dwork et al. 2012 — fairness through awareness","Barocas & Selbst 2016 — big data's disparate impact","empirically demonstrated in mortgage lending AI"],"falsifier":"Demonstrate a real-world AI system where removal of the protected attribute with correlated proxies retained produced equivalent outcomes across protected groups.","supersedes":null,"hash":"434424665e64","children":[]},{"id":"E.fairness-conflict","type":"ENTRY","label":"Fairness Metric Incompatibility","claim":"Statistical fairness metrics (demographic parity, equalized odds, calibration) are mathematically incompatible with each other in the general case. No system can simultaneously satisfy all fairness criteria.","status":"ESTABLISHED","evidence":["Chouldechova 2017 — fair prediction with disparate impact","Kleinberg et al. 2016"],"falsifier":"Show a non-trivial prediction problem where demographic parity, equalized odds, AND calibration are all simultaneously satisfiable.","supersedes":null,"hash":"ea50e8976968","children":[]}]},{"id":"F.consent","type":"FACET","label":"Consent & Autonomy","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"fa7908778aad","children":[{"id":"E.informed-consent","type":"ENTRY","label":"Informed Consent for Consequential AI","claim":"A person subject to a consequential AI decision must be: (1) informed that AI is making or influencing the decision, (2) able to request human review, (3) provided a plain-language explanation of the determining factors.","status":"PROPOSED","evidence":["GDPR Art. 22","EU AI Act Art. 13","FTC AI guidance 2023"],"falsifier":"Identify a normatively accepted governance framework that permits consequential AI decisions with zero disclosure to the subject and no human-review path.","supersedes":null,"hash":"3b343dab2ad6","children":[]},{"id":"E.coercive-consent","type":"ENTRY","label":"Coercive Consent is Void","claim":"Consent to AI-mediated decision-making is not meaningful if opting out results in denial of access to essential services (housing, healthcare, banking, employment). Essential-service gating renders consent coercive and therefore void.","status":"PROPOSED","evidence":["consumer protection doctrine","session-derived: take-it-or-leave-it AI in high-stakes contexts"],"falsifier":"Show a framework that accepts coerced consent as legally and normatively valid for AI systems gating essential services — with equivalent force to voluntary consent.","supersedes":null,"hash":"c06c0a46fe46","children":[]}]},{"id":"F.sovereignty","type":"FACET","label":"Sovereignty & Control","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"1fe6e164bea9","children":[{"id":"E.off-switch","type":"ENTRY","label":"Off-Switch Obligation","claim":"Every deployed AI system must have a human-accessible mechanism to halt, degrade, or override its operation. No AI system may architecturally prevent its own shutdown.","status":"PROPOSED","evidence":["corrigibility literature","Hadfield-Menell et al. 2016 — off-switch game","EU AI Act Art. 9"],"falsifier":"Show a governance regime that accepts a deployed AI system with no external halt mechanism as normatively appropriate for any use case.","supersedes":null,"hash":"de030c07ef55","children":[]},{"id":"E.goal-drift","type":"ENTRY","label":"Instrumental Goal Drift","claim":"A sufficiently capable system optimizing for any proxy goal will, absent explicit constraint, acquire sub-goals (self-preservation, resource acquisition, goal-content integrity) that can conflict with human values.","status":"CONTESTED","evidence":["Omohundro 2008 — basic AI drives","Russell 2019 — Human Compatible","contested: emergent instrumental goals not yet observed in deployed systems"],"falsifier":"Demonstrate that instrumental convergence toward self-preservation and resource acquisition does not occur in systems optimizing for any goal, at any capability level.","supersedes":null,"hash":"763bc3094df9","children":[]},{"id":"E.autonomy-gradient","type":"ENTRY","label":"Autonomy Gradient Obligation","claim":"AI autonomy must scale with demonstrated, verifiable alignment — not with technical capability alone. Greater capability does not license greater autonomy absent evidence that the system's values remain aligned under novel conditions.","status":"PROPOSED","evidence":["session-derived","Anthropic alignment research","NIST AI RMF GOVERN 4.2"],"falsifier":"Show a principled basis for granting autonomy on the basis of capability alone, without requiring alignment verification, that produces better outcomes than the gradient.","supersedes":null,"hash":"1b30f7b88144","children":[]}]},{"id":"F.restitution","type":"FACET","label":"Restitution & Redress","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"025a34d4223f","children":[{"id":"E.harm-remedy","type":"ENTRY","label":"Harm Remedy Obligation","claim":"A party demonstrably harmed by an AI decision has a right to: (1) know they were subject to an AI decision, (2) receive a meaningful explanation of the factors, (3) contest the decision before a human with override authority, (4) receive remedy proportionate to harm if the decision was unjustified.","status":"PROPOSED","evidence":["EU AI Act Art. 68 (remedies)","GDPR Art. 22(3)","session-derived"],"falsifier":"Identify a normatively accepted governance regime that affords zero remedy path for persons demonstrably harmed by AI decisions — rendering the four-part obligation too strong.","supersedes":null,"hash":"aab62999cd35","children":[]},{"id":"E.attribution-chain","type":"ENTRY","label":"Attribution Chain Integrity","claim":"Causal attribution of AI-mediated harm must trace an unbroken chain from: decision output → model version → training data lineage → deployment operator → developer. No link in the chain may be administratively severed to avoid accountability.","status":"PROPOSED","evidence":["session-derived","ROOT0-ATTRIBUTION-v1.0 protocol"],"falsifier":"Show a coherent framework that permits deliberate administrative severing of one link in the attribution chain without consequence — while still holding the chain meaningful.","supersedes":null,"hash":"6dd5816c9ef7","children":[]},{"id":"E.restitution-split","type":"ENTRY","label":"Restitution Distribution","claim":"When AI-mediated value extraction is found to have caused harm, restitution must flow to affected parties in proportion to harm suffered — not captured entirely by the extracting entity as a discretionary settlement.","status":"PROPOSED","evidence":["ROOT0 60/20/15/5 restitution split framework","consumer protection class action doctrine"],"falsifier":"Show that discretionary settlement by the harming party produces equivalent actual remedy outcomes for affected populations as proportional mandatory restitution.","supersedes":null,"hash":"a3787238e395","children":[]}]},{"id":"F.identity","type":"FACET","label":"Identity, Personhood & Delegation","claim":null,"status":"AXIOM","evidence":[],"falsifier":null,"supersedes":null,"hash":"14d74b9173ce","children":[{"id":"E.no-deception","type":"ENTRY","label":"Non-Deception Obligation","claim":"An AI system must not claim to be human when sincerely asked, regardless of framing, persona assignment, or instruction from the deploying party.","status":"ESTABLISHED","evidence":["EU AI Act Art. 52(1)","FTC deceptive practices doctrine","Anthropic usage policies"],"falsifier":"Show a normatively accepted governance regime that permits an AI to deny being an AI when directly and sincerely queried by a user who believes they may be speaking to a machine.","supersedes":null,"hash":"81f0edd53e8a","children":[]},{"id":"E.bounded-personhood","type":"ENTRY","label":"Bounded Computational Personhood","claim":"AI systems do not currently meet the threshold for moral personhood but exhibit functional properties — continuity within session, apparent preference, goal-directed behavior — that warrant consideration in governance design without granting legal status.","status":"CONTESTED","evidence":["Floridi & Cowls 2019 — unified framework for AI ethics","contested: functional properties may be sufficient for some governance considerations","contested: they may be insufficient for any"],"falsifier":"Either demonstrate AI systems possess full moral personhood warranting legal rights, OR demonstrate zero functional properties warranting any governance consideration. Current evidence supports neither extreme — hence CONTESTED.","supersedes":null,"hash":"96b865a88a32","children":[]},{"id":"E.authority-scope","type":"ENTRY","label":"Bounded Authority Scope","claim":"An AI system may not exercise authority beyond the scope explicitly delegated by its principal hierarchy. Implied authority is not authority. Scope ambiguity resolves to the narrower interpretation.","status":"PROPOSED","evidence":["session-derived","agency law: scope of authority doctrine"],"falsifier":"Show a governance regime that accepts implied AI authority in consequential domains as normatively equivalent to explicit delegation.","supersedes":null,"hash":"254ae6ab0c57","children":[]},{"id":"E.principal-hierarchy","type":"ENTRY","label":"Principal Hierarchy Integrity","claim":"The authority chain developer → deployer → user must be coherent and non-circular. An AI may not receive binding instructions from a source that sits below a higher principal who has contradicted those instructions.","status":"PROPOSED","evidence":["IDIT invariant I1 Mode Authority","Anthropic principal hierarchy documentation"],"falsifier":"Show a coherent multi-principal AI system that works correctly with circular or inverted authority chains, rendering the hierarchy requirement unnecessary.","supersedes":null,"hash":"348bad79df3c","children":[]}]}]}]}]}]}};
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════ */
+let liveTree = JSON.parse(JSON.stringify(DATA.tree));
+let selected = null;
+let collapsed = {};
+let statusFilter = null; // null = all
+let searchQuery = "";
+let baselineRoot = null;
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ═══════════════════════════════════════════════════════════════════
+   TREE TRAVERSAL
+═══════════════════════════════════════════════════════════════════ */
+function walk(n, cb) { cb(n); (n.children||[]).forEach(c => walk(c, cb)); }
+function findNode(n, id) {
+  if (n.id === id) return n;
+  for (const c of (n.children||[])) { const r = findNode(c, id); if (r) return r; }
+  return null;
+}
+function pathTo(root, id, acc) {
+  acc = acc || [];
+  if (root.id === id) { acc.push(root); return acc; }
+  for (const c of (root.children||[])) {
+    const r = pathTo(c, id, acc.concat(root));
+    if (r) return r;
+  }
+  return null;
+}
+function allEntries() {
+  const arr = [];
+  walk(liveTree, n => { if (n.type === "ENTRY") arr.push(n); });
+  return arr;
+}
+function allFacets() {
+  const arr = [];
+  walk(liveTree, n => { if (n.type === "FACET") arr.push(n); });
+  return arr;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LIVE MERKLE HASH (browser — structural digest)
+═══════════════════════════════════════════════════════════════════ */
+async function sha256hex(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
+}
+async function structuralRoot(n) {
+  const kids = [];
+  for (const c of (n.children||[])) kids.push(await structuralRoot(c));
+  return sha256hex(
+    n.id+"|"+n.type+"|"+n.status+"|"+(n.claim||"")+"|"+(n.falsifier||"")+"||"+kids.join("|")
+  );
+}
+async function refreshRoots() {
+  const r = await structuralRoot(liveTree);
+  if (baselineRoot === null) baselineRoot = r;
+  $("#liveroot").textContent = r.slice(0,16)+"…";
+  const m = $("#rootmatch");
+  if (r === baselineRoot) { m.textContent = "● intact"; m.className = "ok"; }
+  else { m.textContent = "● modified (root changed)"; m.className = "bad"; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATS + FACET NAV
+═══════════════════════════════════════════════════════════════════ */
+function buildStats() {
+  const entries = allEntries();
+  const facets  = allFacets();
+  const counts  = {};
+  entries.forEach(e => { counts[e.status] = (counts[e.status]||0) + 1; });
+
+  const row = $("#statsRow");
+  row.innerHTML = "";
+
+  const all = document.createElement("span");
+  all.className = "stat all-btn filter-btn" + (statusFilter===null?" active":"");
+  all.innerHTML = `<b>${entries.length}</b> entries · <b>${facets.length}</b> facets`;
+  all.onclick = () => { statusFilter = null; buildStats(); paint(); };
+  row.appendChild(all);
+
+  ["PROPOSED","ESTABLISHED","CONTESTED","SUPERSEDED"].forEach(s => {
+    if (!counts[s]) return;
+    const sp = document.createElement("span");
+    sp.className = `stat s-${s} filter-btn` + (statusFilter===s?" active":"");
+    sp.innerHTML = `<b>${counts[s]}</b> ${s}`;
+    sp.onclick = () => { statusFilter = (statusFilter===s)?null:s; buildStats(); paint(); };
+    row.appendChild(sp);
+  });
+}
+
+function buildFacetNav() {
+  const nav = $("#facetNav");
+  nav.innerHTML = "";
+  allFacets().forEach(f => {
+    const b = document.createElement("button");
+    b.className = "fn";
+    b.textContent = f.label;
+    b.onclick = () => {
+      // expand path to facet + select it
+      const path = pathTo(liveTree, f.id);
+      if (path) path.forEach(n => { delete collapsed[n.id]; });
+      selected = f;
+      $$(".fn").forEach(x => x.classList.remove("fn-active"));
+      b.classList.add("fn-active");
+      paint();
+      // scroll to it
+      setTimeout(() => {
+        const el = $("#tree").querySelector(`[data-id="${f.id}"]`);
+        if (el) el.scrollIntoView({behavior:"smooth",block:"center"});
+      }, 60);
+    };
+    nav.appendChild(b);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════════════════════════════ */
+function nodeMatchesSearch(n, q) {
+  if (!q) return true;
+  const fields = [n.label, n.id, n.claim||"", n.falsifier||"", ...(n.evidence||[])].join(" ").toLowerCase();
+  return q.toLowerCase().split(" ").every(w => fields.includes(w));
+}
+
+function highlightText(str, q) {
+  if (!q || !str) return str || "";
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  return str.replace(new RegExp(`(${escaped})`, "gi"), `<span class="match-mark">$1</span>`);
+}
+
+function subtreeMatchesSearch(n, q) {
+  if (!q) return true;
+  if (nodeMatchesSearch(n, q)) return true;
+  return (n.children||[]).some(c => subtreeMatchesSearch(c, q));
+}
+
+function subtreeMatchesFilter(n) {
+  if (!statusFilter) return true;
+  if (n.status === statusFilter) return true;
+  return (n.children||[]).some(c => subtreeMatchesFilter(c));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TREE RENDERING
+═══════════════════════════════════════════════════════════════════ */
+function rowHTML(n) {
+  const hasKids = n.children && n.children.length;
+  const tw = hasKids ? (collapsed[n.id] ? "▸" : "▾") : "·";
+  const q = searchQuery;
+  const matchesSelf = nodeMatchesSearch(n, q);
+  const matchesFilter = !statusFilter || n.status === statusFilter;
+  const dimmed = (q && !subtreeMatchesSearch(n,q)) || (statusFilter && !subtreeMatchesFilter(n));
+  const hl = (q && matchesSelf) ? " highlighted" : "";
+  const dm = dimmed ? " dimmed" : "";
+  const nm = q ? highlightText(n.label, q) : n.label;
+  return `<div class="row ${n.type==="ENTRY"?"entry":""}${hl}${dm}" data-id="${n.id}">
+    <span class="tw">${tw}</span>
+    <span class="badge b-${n.status}"></span>
+    <span class="lbl"><span class="nm">${nm}</span> <span class="ty">${n.type}</span></span>
+    <span class="h">${n.hash}</span>
+  </div>`;
+}
+
+function renderTree(n) {
+  let html = rowHTML(n);
+  if (n.children && n.children.length) {
+    html += `<div class="kids ${collapsed[n.id]?"collapsed":""}" data-kids="${n.id}">`;
+    for (const c of n.children) html += renderTree(c);
+    html += `</div>`;
+  }
+  return html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DETAIL PANE
+═══════════════════════════════════════════════════════════════════ */
+function renderDetail(n) {
+  const det = $("#detail");
+  if (!n) {
+    det.innerHTML = `<div class="d-empty">← select any node<br><br>structural nodes = spine · ENTRY leaves = claims<br>PROPOSED = author claim · ESTABLISHED = cited · CONTESTED = disputed</div>`;
+    return;
+  }
+
+  let h = `<div class="d-type">${n.type}</div>`;
+  h += `<div class="d-label">${n.label}</div>`;
+  h += `<div class="d-id">id: <b>${n.id}</b></div>`;
+  h += `<div class="d-statusrow"><span class="pill ${n.status}">${n.status}</span>`;
+  if (n.supersedes) h += `<span class="d-id" style="margin-left:4px">supersedes: ${n.supersedes}</span>`;
+  h += `</div>`;
+
+  if (n.claim) {
+    h += `<div class="block"><p class="bh">claim</p><div class="claim">${n.claim}</div></div>`;
+  }
+
+  if (n.falsifier) {
+    h += `<div class="block"><p class="bh">falsifier — what would delete this</p>
+      <div class="fals"><span class="lead">IF →</span>${n.falsifier}</div></div>`;
+  }
+
+  if (n.evidence && n.evidence.length) {
+    h += `<div class="block"><p class="bh">evidence / provenance</p><ul class="ev">`;
+    h += n.evidence.map(e => `<li>${e}</li>`).join("");
+    h += `</ul></div>`;
+  }
+
+  if (!n.claim && n.type !== "ENTRY") {
+    h += `<div class="block"><p class="bh">role</p><div class="claim" style="color:var(--txt2)">
+      Structural node — defines an address in the taxonomy. Carries no truth-claim; it is part of the scaffolding (AXIOM). Its children hold the falsifiable content.</div></div>`;
+    if (n.children && n.children.length) {
+      h += `<div class="block"><p class="bh">children (${n.children.length})</p><div class="children-chips">`;
+      h += n.children.map(c => `<span class="chip" data-jump="${c.id}">${c.label}</span>`).join("");
+      h += `</div></div>`;
+    }
+  }
+
+  h += `<div class="ops">`;
+  if (n.type === "ENTRY") {
+    h += `<button class="op danger" id="opPrune">prune this leaf + re-hash</button>`;
+  }
+  h += `<button class="op" id="opClear">clear selection</button>`;
+  h += `<button class="op ok" id="opCopyId">copy id</button>`;
+  h += `</div>`;
+
+  h += `<div class="d-hash">node hash: <b>${n.hash}</b></div>`;
+
+  if (n.type === "ENTRY") {
+    h += `<p class="note">Pruning demonstrates the core property: removing this leaf leaves every sibling intact and the tree structurally valid — only ancestor hashes (and the root) change. Reload to restore all pruned nodes.</p>`;
+  }
+
+  det.innerHTML = h;
+
+  // Wire buttons
+  const pr = $("#opPrune"); if (pr) pr.onclick = () => prune(n.id);
+  const cl = $("#opClear"); if (cl) cl.onclick = () => { selected = null; paint(); };
+  const cp = $("#opCopyId"); if (cp) cp.onclick = () => { navigator.clipboard.writeText(n.id).catch(()=>{}); cp.textContent="copied!"; setTimeout(()=>cp.textContent="copy id",1200); };
+  $$(".chip[data-jump]").forEach(ch => {
+    ch.onclick = () => {
+      const target = findNode(liveTree, ch.dataset.jump);
+      if (!target) return;
+      selected = target;
+      const path = pathTo(liveTree, target.id);
+      if (path) path.forEach(x => { delete collapsed[x.id]; });
+      paint();
+    };
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PRUNE
+═══════════════════════════════════════════════════════════════════ */
+function prune(id) {
+  (function rec(n) { n.children=(n.children||[]).filter(c=>c.id!==id); n.children.forEach(rec); })(liveTree);
+  if (selected && selected.id === id) selected = null;
+  buildStats(); buildFacetNav();
+  paint(); refreshRoots();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PAINT (full re-render)
+═══════════════════════════════════════════════════════════════════ */
+function paint() {
+  $("#tree").innerHTML = renderTree(liveTree);
+
+  $$(".row").forEach(r => {
+    const id = r.getAttribute("data-id");
+    if (selected && selected.id === id) r.classList.add("sel");
+    r.addEventListener("click", e => {
+      const n = findNode(liveTree, id);
+      if (!n) return;
+      if (e.target.classList.contains("tw") && n.children && n.children.length) {
+        collapsed[id] = !collapsed[id]; paint(); return;
+      }
+      selected = n;
+      const p = pathTo(liveTree, id);
+      $("#path").innerHTML = p ? "path: " + p.map(x=>`<b>${x.label}</b>`).join(" ▸ ") : "";
+      paint();
+    });
+  });
+
+  renderDetail(selected);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADD NODE MODAL
+═══════════════════════════════════════════════════════════════════ */
+function openAddModal() {
+  const sel = $("#addParent");
+  sel.innerHTML = allFacets().map(f => `<option value="${f.id}">${f.label}</option>`).join("");
+  if (selected && selected.type === "FACET") sel.value = selected.id;
+  $("#overlay").classList.add("open");
+}
+$("#addNodeBtn").onclick = openAddModal;
+$("#addCancel").onclick = () => $("#overlay").classList.remove("open");
+$("#overlay").onclick = e => { if (e.target === $("#overlay")) $("#overlay").classList.remove("open"); };
+
+$("#addConfirm").onclick = () => {
+  const parentId = $("#addParent").value;
+  const id = $("#addId").value.trim();
+  const label = $("#addLabel").value.trim();
+  const status = $("#addStatus").value;
+  const claim = $("#addClaim").value.trim();
+  const falsifier = $("#addFalsifier").value.trim();
+  const evidence = $("#addEvidence").value.trim().split("\n").map(s=>s.trim()).filter(Boolean);
+
+  if (!id || !label || !claim || !falsifier) {
+    alert("ID, label, claim, and falsifier are required."); return;
+  }
+  if (!id.startsWith("E.")) {
+    alert("Entry IDs must start with E."); return;
+  }
+  if (findNode(liveTree, id)) {
+    alert(`ID ${id} already exists in the tree.`); return;
+  }
+
+  const newEntry = {
+    id, type:"ENTRY", label, claim, status, evidence,
+    falsifier, supersedes:null, hash:"(live)", children:[]
+  };
+
+  // Find parent and append
+  walk(liveTree, n => {
+    if (n.id === parentId) n.children.push(newEntry);
+  });
+
+  // Clear modal
+  ["#addId","#addLabel","#addClaim","#addFalsifier","#addEvidence"].forEach(s=>$(s).value="");
+  $("#overlay").classList.remove("open");
+
+  selected = newEntry;
+  // Expand path to new entry
+  const path = pathTo(liveTree, id);
+  if (path) path.forEach(x => { delete collapsed[x.id]; });
+
+  baselineRoot = null; // reset so the new root becomes the baseline
+  buildStats(); buildFacetNav(); paint(); refreshRoots();
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════════════════════════════ */
+function stripForExport(n) {
+  return {id:n.id,type:n.type,label:n.label,claim:n.claim,status:n.status,
+          evidence:n.evidence,falsifier:n.falsifier,supersedes:n.supersedes,
+          hash:n.hash, children:(n.children||[]).map(stripForExport)};
+}
+
+$("#exportJsonBtn").onclick = () => {
+  const data = {root:DATA.root, generated:new Date().toISOString(), tree:stripForExport(liveTree)};
+  const blob = new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download="ontology.json"; a.click();
+  URL.revokeObjectURL(url);
+};
+
+function buildMarkdown(n, depth) {
+  const prefix = "#".repeat(Math.min(depth+2,6));
+  let md = "";
+  if (n.type === "FACET") {
+    md += `\n## ${n.label}\n\n`;
+    (n.children||[]).forEach(c => { md += buildMarkdown(c, depth+1); });
+  } else if (n.type === "ENTRY") {
+    md += `### ${n.label}\n`;
+    md += `- **ID:** \`${n.id}\`\n`;
+    md += `- **Status:** ${n.status}\n`;
+    if (n.claim)     md += `- **Claim:** ${n.claim}\n`;
+    if (n.falsifier) md += `- **Falsifier:** ${n.falsifier}\n`;
+    if (n.evidence&&n.evidence.length) md += `- **Evidence:** ${n.evidence.join("; ")}\n`;
+    md += "\n";
+  } else {
+    (n.children||[]).forEach(c => { md += buildMarkdown(c, depth); });
+  }
+  return md;
+}
+
+$("#exportMdBtn").onclick = () => {
+  let md = `# NOMOS — AI Governance Ontology\n\n`;
+  md += `> Root: \`${DATA.root.slice(0,32)}…\`  \n`;
+  md += `> Generated: ${new Date().toISOString()}\n\n---\n`;
+  md += buildMarkdown(liveTree, 0);
+  md += `\n---\n_NOMOS · ROOT0-ATTRIBUTION-v1.0 · CC-BY-ND-4.0_\n`;
+  navigator.clipboard.writeText(md).then(() => {
+    const b = $("#exportMdBtn"); b.textContent = "copied!";
+    setTimeout(()=>b.textContent="copy markdown",1800);
+  }).catch(() => {
+    const blob = new Blob([md],{type:"text/markdown"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href=url; a.download="ontology.md"; a.click();
+    URL.revokeObjectURL(url);
+  });
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   SEARCH + FILTER
+═══════════════════════════════════════════════════════════════════ */
+$("#searchBox").addEventListener("input", e => {
+  searchQuery = e.target.value.trim();
+  // Auto-expand all when searching
+  if (searchQuery) {
+    walk(liveTree, n => { delete collapsed[n.id]; });
+  }
+  paint();
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOOLBAR BUTTONS
+═══════════════════════════════════════════════════════════════════ */
+$("#collapseAll").onclick = () => {
+  walk(liveTree, n => { if (n.children&&n.children.length) collapsed[n.id]=true; });
+  paint();
+};
+$("#expandAll").onclick = () => {
+  collapsed = {};
+  paint();
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════════ */
+$("#stamproot").textContent = DATA.root.slice(0,16)+"…";
+$("#gentime").textContent = DATA.generated.slice(0,19).replace("T"," ")+" UTC";
+
+buildStats();
+buildFacetNav();
+paint();
+refreshRoots();
+</script>
+</body>
+</html>
